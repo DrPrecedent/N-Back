@@ -64,6 +64,7 @@ class Game(Activity):
     cell_surface_size = (100, 100)
     cell_surface_color = (50, 50, 50)
     background_color = (255, 255, 255)
+    background_flash_color = (0, 0, 255)
 
     def __init__(self):
         Activity.__init__(self)
@@ -86,6 +87,11 @@ class Game(Activity):
 
     def draw(self):
         self.surface.fill(self.background_color)
+
+        # Flash blue background to emphasize new slide event
+        if self.show_answer:
+            self.surface.fill(self.background_flash_color)
+
 
         board_surface_base = widgets.Box(self.board_surface_size, self.board_surface_color, self.corner_radius).draw()
         board_surface = pygame.Surface.copy(board_surface_base)
@@ -216,6 +222,8 @@ class Game(Activity):
             if len(self.history) >= self.settings.numOfSlides:
                 # If enough slides have passed
                 self.stop()
+
+
 
 class Results(Activity):
     def __init__(self, results):

@@ -19,7 +19,7 @@ class Settings():
     numOfSlides = 20
 
     # Window settings
-    windowSize = (1000, 1000)
+    windowSize = (600, 600)
     # Kind of quirky, messes up resolution settings in my dev env.
     fullscreen = False
 
