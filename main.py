@@ -23,7 +23,20 @@ from nBack import NBack
 def main():
     settings = Settings.Instance()
 
-    pygame.init()
+    if settings.debug:
+        pygame.display.init()
+        print("Pygame Display Initialized")
+        pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, allowedchanges=pygame.AUDIO_ALLOW_ANY_CHANGE)
+        print("Pygame Mixer Audio Initialized")
+        pygame.mixer.init()
+        print("Pygame Mixer Audio Fully Initialized")
+        pygame.joystick.init()
+        print("Pygame Joystick Initialized")
+        pygame.font.init()
+        print("Pygame Fonts Initialized")
+    else:
+        pygame.init()
+
     if settings.android:
         settings.android = True
         android.init()

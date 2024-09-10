@@ -23,6 +23,9 @@ class Activity:
         self.windowSize = settings.windowSize
         self.android = settings.android
 
+        if settings.debug:
+            print("Activity Class Created")
+
 
 class Menu(Activity):
     def __init__(self):
@@ -32,6 +35,7 @@ class Menu(Activity):
         self.titleFont = pygame.font.Font("fonts/freesansbold.ttf", 50)
         self.menuFont = pygame.font.Font("fonts/freesansbold.ttf", 20)
         self.smallFont = pygame.font.Font("fonts/freesansbold.ttf", 15)
+        self.paused = False
 
         if self.android:
             newgameKey = "Search"
@@ -40,17 +44,27 @@ class Menu(Activity):
             newgameKey = "Escape"
             triggerKey = "Space"
 
-        titleText = self.titleFont.render("Welcome to N-Back!", True, (255,255,0))
+
+        self.titleText = self.titleFont.render("Welcome to N-Back!", True, (255,255,0))
+
         titleVersion = self.smallFont.render("Version " + self.version, True, (255,255,0))
         self.title = pygame.Surface((650,200)).convert()
-        self.title.blit(titleText, (self.title.get_width()/2-titleText.get_width()/2, self.title.get_height()/2-titleText.get_height()/2))
+        self.title.blit(self.titleText, (self.title.get_width()/2-self.titleText.get_width()/2, self.title.get_height()/2-self.titleText.get_height()/2))
         self.title.blit(titleVersion, (self.title.get_width()/2-titleVersion.get_width()/2, (self.title.get_height()/2-titleVersion.get_height()/2)+40))
 
-        self.controlsBox = widgets.TextBox("Controls\n  New Game / Pause - {0}\n  Trigger N-Back - {1}".format(newgameKey, triggerKey), self.menuFont, (350,100), color=(0,0,50), textColor=(255,255,0), radius=10)
+        self.controlsBox = widgets.TextBox("Controls\n  Start Game / Pause - {0}\n  Trigger N-Back - {1}".format(newgameKey, triggerKey), self.menuFont, (350,100), color=(0,0,50), textColor=(255,255,0), radius=10)
+
+        if Settings.Instance().debug:
+            print("Menu Class Created")
 
     def draw(self):
+
+        if self.paused:
+            self.title.fill((0,0,0))
+            self.titleText = self.titleFont.render("Game Paused!", True, (255, 255, 0))
+            self.title.blit(self.titleText, (self.title.get_width() / 2 - self.titleText.get_width() / 2, self.title.get_height() / 2 - self.titleText.get_height() / 2))
+
         self.surface.blit(self.title, ( (self.surface.get_width()/2-self.title.get_width()/2), (self.surface.get_height()/2-self.title.get_height()/2)-100 ))
-        #self.surface.blit(self.controls, ( 25, (self.windowSize[1]-self.controls.get_height())-25 ))
         self.surface.blit(self.controlsBox.draw(), ( 25, (self.windowSize[1]-self.controlsBox.draw().get_height())-25 ))
 
         return self.surface
@@ -73,6 +87,7 @@ class Game(Activity):
         self.results = {}
         self.history = []
         self.started = False
+        self.paused = False
         self.reset()
 
         self.positions = {i+1: (self.corner_radius + 100*(i % 3),
@@ -85,6 +100,9 @@ class Game(Activity):
 
         self.show_answer = False
         self.triggered = False
+
+        if self.settings.debug:
+            print("Game Class Created")
 
     def draw(self):
         self.surface.fill(self.background_color)
@@ -112,13 +130,12 @@ class Game(Activity):
         return self.surface
 
     def reset(self):
-        self.results = {"correct": 0, "avoid": 0, "miss": 0, "wrong": 0}
+        self.results = {"correct": 0, "avoid": 0, "miss": 0, "wrong": 0, "count": 0}
         self.history = []
 
     def start(self):
         self.reset()
         self.started = True
-        self.paused = False
         self.nextSlide()
 
         pygame.time.set_timer(USEREVENT+1, int(self.settings.slideTime))
@@ -130,22 +147,11 @@ class Game(Activity):
             self.paused = False
             print("Game resumed!")
 
-            # Remove paused pop up here
-
         else:
             self.paused = True
             pygame.time.set_timer(USEREVENT+1, 0)
             print("Game paused!")
 
-            # Display paused pop up here
-
-
-
-    def text_objects(text, font):
-        textSurface = font.render(text, True, black)
-        return textSurface, textSurface.get_rect()
-#        self.started = not self.started
-#        self.drawMenu = not self.drawMenu
 
     def stop(self):
         self.save()
@@ -192,6 +198,7 @@ class Game(Activity):
         pos = self.currentPosition()
 
         if self.triggered:
+
             if nBackPos == pos:
                 self.results["correct"] += 1
                 self.setCorrectAnswer()
@@ -230,6 +237,7 @@ class Game(Activity):
 
     def showSlideSwitch(self):
         self.show_answer = not self.show_answer
+        self.results["count"] = len(self.history)
 
         if not self.show_answer:
             self.setNoAnswer()
@@ -268,14 +276,18 @@ class Results(Activity):
         resultsWrong = self.smallFont.render("Wrong: {0}".format(results["wrong"]), True, (255, 255, 0))
         resultsAvoid = self.smallFont.render("Avoided: {0}".format(results["avoid"]), True, (255, 255, 0))
         resultsMiss = self.smallFont.render("Missed: {0}".format(results["miss"]), True, (255, 255, 0))
+        resultsRemaining = self.smallFont.render("Remaining: {0}".format(Settings.Instance().numOfSlides - results["count"]), True, (255, 255, 0))
         self.panelSurfaceRight.blit(resultsHeader, (10, 10))
         self.panelSurfaceRight.blit(resultsCorrect, (10, 40))
         self.panelSurfaceRight.blit(resultsWrong, (10, 60))
         self.panelSurfaceRight.blit(resultsAvoid, (10, 80))
         self.panelSurfaceRight.blit(resultsMiss, (10, 100))
+        self.panelSurfaceRight.blit(resultsRemaining, (10, 120))
 
         self.surface.blit(self.panelSurfaceLeft, (0, 0))
         self.surface.blit(self.panelSurfaceRight, ((self.windowSize[0]-self.panelSurfaceRight.get_width()), 0))
 
+        if Settings.Instance().debug:
+            print("Results Class Created")
     def draw(self):
         return self.surface
