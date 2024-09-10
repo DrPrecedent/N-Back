@@ -4,6 +4,11 @@
 A very simple N-Back game written in Python with PyGame.
 
 ## History
+Cloned Repo from Erik Bjäreholt - [erik.bjareholt.com](http://erik.bjareholt.com/) at [GitHub](https://github.com/ErikBjare/N-Back/).
+Patched with various features to practice Python and PyGame.
+
+Full original description below written by Erik Bjäreholt:
+---------------------
 This was one of the first programs I wrote in Python, and the first time I ever used Git for code I wrote myself.
 It was a lot of fun to write and I learned a lot, I might even consider it the most significant learning experience
 I've had since it led to so many others.
