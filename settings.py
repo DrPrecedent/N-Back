@@ -26,12 +26,16 @@ class Settings():
     drawNumber = True
 
     # Set to true to skip menu
-    standalone = True
+    standalone = False
 
     # Unsupported
     android = False
 
     debug = True
+
+    # Start Screen and Game Over Screen
+    start_screen = True
+    game_over_screen = True
 
     def __init__(self):
         print("Settings loaded")

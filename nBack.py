@@ -35,6 +35,7 @@ class NBack:
         self.drawMenu = True if not self.settings.standalone else False
         self.drawGame = False if not self.settings.standalone else True
         self.drawResults = False
+        #self.drawResults = True
 
         self.menu = UI.activities.Menu()
         self.game = UI.activities.Game()
@@ -82,9 +83,12 @@ class NBack:
 
                 elif not self.settings.standalone:
                     if event.key == K_ESCAPE:
-                        self.drawMenu = False
-                        self.drawGame = True
-                        self.game.start()
+                        if self.game.started:
+                            self.game.pause()
+                        else:
+                            self.drawMenu = False
+                            self.drawGame = True
+                            self.game.start()
                     elif event.key == K_F1:
                         self.drawResults = not self.drawResults
                         if self.drawResults:

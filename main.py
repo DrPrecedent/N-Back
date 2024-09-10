@@ -5,6 +5,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 Created on Feb 3, 2012
 
 @author: Erik Bjareholt
+
+Modified 2024 by Rick Solarski
 """
 
 import pygame
@@ -15,7 +17,6 @@ except ImportError:
     android = None
 
 from settings import Settings
-
 from nBack import NBack
 
 

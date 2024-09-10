@@ -46,7 +46,7 @@ class Menu(Activity):
         self.title.blit(titleText, (self.title.get_width()/2-titleText.get_width()/2, self.title.get_height()/2-titleText.get_height()/2))
         self.title.blit(titleVersion, (self.title.get_width()/2-titleVersion.get_width()/2, (self.title.get_height()/2-titleVersion.get_height()/2)+40))
 
-        self.controlsBox = widgets.TextBox("Controls\n  New Game - {0}\n  Trigger N-Back - {1}".format(newgameKey, triggerKey), self.menuFont, (270,100), color=(0,0,50), textColor=(255,255,0), radius=10)
+        self.controlsBox = widgets.TextBox("Controls\n  New Game / Pause - {0}\n  Trigger N-Back - {1}".format(newgameKey, triggerKey), self.menuFont, (350,100), color=(0,0,50), textColor=(255,255,0), radius=10)
 
     def draw(self):
         self.surface.blit(self.title, ( (self.surface.get_width()/2-self.title.get_width()/2), (self.surface.get_height()/2-self.title.get_height()/2)-100 ))
@@ -72,6 +72,7 @@ class Game(Activity):
 
         self.results = {}
         self.history = []
+        self.started = False
         self.reset()
 
         self.positions = {i+1: (self.corner_radius + 100*(i % 3),
@@ -116,17 +117,35 @@ class Game(Activity):
 
     def start(self):
         self.reset()
+        self.started = True
+        self.paused = False
         self.nextSlide()
 
         pygame.time.set_timer(USEREVENT+1, int(self.settings.slideTime))
 
     def pause(self):
-        if self.activeGame:
-            pygame.time.set_timer(USEREVENT+1, 0)
+
+        if self.paused:
+            pygame.time.set_timer(USEREVENT + 1, int(self.settings.slideTime))
+            self.paused = False
+            print("Game resumed!")
+
+            # Remove paused pop up here
+
         else:
-            pygame.time.set_timer(USEREVENT+1, self.slideTime)
-        self.activeGame = not self.activeGame
-        self.drawMenu = not self.drawMenu
+            self.paused = True
+            pygame.time.set_timer(USEREVENT+1, 0)
+            print("Game paused!")
+
+            # Display paused pop up here
+
+
+
+    def text_objects(text, font):
+        textSurface = font.render(text, True, black)
+        return textSurface, textSurface.get_rect()
+#        self.started = not self.started
+#        self.drawMenu = not self.drawMenu
 
     def stop(self):
         self.save()
