@@ -24,7 +24,6 @@ except ImportError:
 class NBack:
     def __init__(self):
         self.clock = pygame.time.Clock()
-        
         self.settings = Settings.Instance()
 
         if self.settings.fullscreen:
@@ -83,13 +82,16 @@ class NBack:
 
                 elif not self.settings.standalone:
                     if event.key == K_ESCAPE:
+                        self.menu.paused = True
                         if self.game.started:
-                            self.drawMenu = not self.drawMenu
-                            self.drawGame = not self.drawGame
-                            self.menu.paused = True
-                            if not self.drawResults:
+                            if self.drawResults:
+                                self.drawResults = not self.drawResults
+                            else:
+                                self.menu.results = self.game.results
+                                self.drawMenu = not self.drawMenu
+                                self.drawGame = not self.drawGame
                                 self.game.pause()
-                            self.drawResults = False
+
                         else:
                             self.drawMenu = False
                             self.drawGame = True

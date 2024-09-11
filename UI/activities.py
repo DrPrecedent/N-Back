@@ -34,7 +34,12 @@ class Menu(Activity):
 
         self.titleFont = pygame.font.Font("fonts/freesansbold.ttf", 50)
         self.menuFont = pygame.font.Font("fonts/freesansbold.ttf", 20)
+        self.menuFont_UL = pygame.font.Font("fonts/freesansbold.ttf", 20)
+        self.menuFont_UL.set_underline(True)
         self.smallFont = pygame.font.Font("fonts/freesansbold.ttf", 15)
+
+
+        self.results = {}
         self.paused = False
 
         if self.android:
@@ -49,6 +54,7 @@ class Menu(Activity):
 
         titleVersion = self.smallFont.render("Version " + self.version, True, (255,255,0))
         self.title = pygame.Surface((650,200)).convert()
+        self.result_surface = pygame.Surface((120, 150)).convert()
         self.title.blit(self.titleText, (self.title.get_width()/2-self.titleText.get_width()/2, self.title.get_height()/2-self.titleText.get_height()/2))
         self.title.blit(titleVersion, (self.title.get_width()/2-titleVersion.get_width()/2, (self.title.get_height()/2-titleVersion.get_height()/2)+40))
 
@@ -57,15 +63,31 @@ class Menu(Activity):
         if Settings.Instance().debug:
             print("Menu Class Created")
 
+    def draw_results(self):
+        resultsHeader = self.menuFont_UL.render("Results:", True, (255, 255, 0))
+        resultsCorrect = self.smallFont.render("Correct: {0}".format(self.results["correct"]), True, (255, 255, 0))
+        resultsWrong = self.smallFont.render("Wrong: {0}".format(self.results["wrong"]), True, (255, 255, 0))
+        resultsAvoid = self.smallFont.render("Avoided: {0}".format(self.results["avoid"]), True, (255, 255, 0))
+        resultsMiss = self.smallFont.render("Missed: {0}".format(self.results["miss"]), True, (255, 255, 0))
+        resultsRemaining = self.smallFont.render("Remaining: {0}".format(Settings.Instance().numOfSlides - self.results["count"] - 1), True, (255, 255, 0))
+        self.result_surface.blit(resultsHeader, (10, 10))
+        self.result_surface.blit(resultsCorrect, (10, 40))
+        self.result_surface.blit(resultsWrong, (10, 60))
+        self.result_surface.blit(resultsAvoid, (10, 80))
+        self.result_surface.blit(resultsMiss, (10, 100))
+        self.result_surface.blit(resultsRemaining, (10, 120))
+
+        return self.result_surface
+
     def draw(self):
-
-        if self.paused:
-            self.title.fill((0,0,0))
-            self.titleText = self.titleFont.render("Game Paused!", True, (255, 255, 0))
-            self.title.blit(self.titleText, (self.title.get_width() / 2 - self.titleText.get_width() / 2, self.title.get_height() / 2 - self.titleText.get_height() / 2))
-
         self.surface.blit(self.title, ( (self.surface.get_width()/2-self.title.get_width()/2), (self.surface.get_height()/2-self.title.get_height()/2)-100 ))
         self.surface.blit(self.controlsBox.draw(), ( 25, (self.windowSize[1]-self.controlsBox.draw().get_height())-25 ))
+        if self.paused:
+            self.title.fill((0,0,0))
+            self.result_surface.fill((0, 0, 0))
+            self.titleText = self.titleFont.render("Game Paused!", True, (255, 255, 0))
+            self.title.blit(self.titleText, (self.title.get_width() / 2 - self.titleText.get_width() / 2, self.title.get_height() / 2 - self.titleText.get_height() / 2))
+            self.surface.blit(self.draw_results(),(self.surface.get_width()/2 - self.result_surface.get_width()/2, self.surface.get_height()/2 - self.titleText.get_height() / 2))
 
         return self.surface
 
@@ -141,7 +163,6 @@ class Game(Activity):
         pygame.time.set_timer(USEREVENT+1, int(self.settings.slideTime))
 
     def pause(self):
-
         if self.paused:
             pygame.time.set_timer(USEREVENT + 1, int(self.settings.slideTime))
             self.paused = False
@@ -198,7 +219,6 @@ class Game(Activity):
         pos = self.currentPosition()
 
         if self.triggered:
-
             if nBackPos == pos:
                 self.results["correct"] += 1
                 self.setCorrectAnswer()
@@ -224,9 +244,11 @@ class Game(Activity):
         else:
             position = random.randint(1, 9)
         self.history.append(position)
+        self.results["count"] = len(self.history)
 
         if self.settings.debug:
             print("Slide number {0} generated with value: {1}".format(len(self.history), self.history[-1]))
+            print("{0} slides remaining".format(Settings.Instance().numOfSlides - self.results["count"]))
 
         self.triggered = False
         self.positionX = self.positions[self.currentPosition()][0]
@@ -237,7 +259,6 @@ class Game(Activity):
 
     def showSlideSwitch(self):
         self.show_answer = not self.show_answer
-        self.results["count"] = len(self.history)
 
         if not self.show_answer:
             self.setNoAnswer()
