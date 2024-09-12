@@ -27,9 +27,9 @@ class NBack:
         self.settings = Settings.Instance()
 
         if self.settings.fullscreen:
-            self.screen = pygame.display.set_mode(self.settings.windowSize, pygame.FULLSCREEN, 32)
+            self.gameWindow = pygame.display.set_mode(self.settings.windowSize, pygame.FULLSCREEN, 32)
         else:
-            self.screen = pygame.display.set_mode(self.settings.windowSize, 0, 32)
+            self.gameWindow = pygame.display.set_mode(self.settings.windowSize, 0, 32)
 
         self.drawMenu = True if not self.settings.standalone else False
         self.drawGame = False if not self.settings.standalone else True
@@ -54,13 +54,13 @@ class NBack:
             
     def draw(self):
         if self.drawMenu:
-            self.screen.blit(self.menu.draw(), (0, 0))
+            self.gameWindow.blit(self.menu.draw(), (0, 0))
             
         if self.drawGame:
-            self.screen.blit(self.game.draw(), (0, 0))
+            self.gameWindow.blit(self.game.draw(), (0, 0))
             
         if self.drawResults:
-            self.screen.blit(self.results.draw(), (0, 0))
+            self.gameWindow.blit(self.results.draw(), (0, 0))
     
     def handler(self):
         pygame.event.pump()
@@ -71,7 +71,8 @@ class NBack:
                 sys.exit()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.game.triggered = True
+                #self.game.triggered = True
+                self.game.trigger()
 
             elif event.type == KEYDOWN:
                 if event.key == K_RETURN:

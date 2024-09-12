@@ -4,7 +4,7 @@ __author__ = 'erb'
 
 @Singleton
 class Settings():
-    version = "0.3.1"
+    version = "0.4.0"
 
     # The N in N-Back
     nBack = 2
@@ -32,10 +32,7 @@ class Settings():
     android = False
 
     debug = True
-
-    # Start Screen and Game Over Screen
-    start_screen = True
-    game_over_screen = True
+    blinkSlideBackground = True
 
     def __init__(self):
         print("Settings loaded")

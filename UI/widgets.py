@@ -13,8 +13,8 @@ import pygame.draw
 class Widget:
     def __init__(self, size):
         self.size = size
-        self.surface = pygame.Surface(self.size).convert_alpha()
-        self.surface.fill((0,0,0,0))
+        self.objectSurface = pygame.Surface(self.size).convert_alpha()
+        self.objectSurface.fill((0, 0, 0, 0))
     
     
 class Box(Widget):
@@ -30,14 +30,14 @@ class Box(Widget):
                        [0+self.radius, self.size[1]-self.radius], 
                        [self.size[0]-self.radius, self.size[1]-self.radius]]
             for quadrant in range(4):
-                pygame.draw.circle(self.surface, self.color, corners[quadrant], self.radius)
-            pygame.draw.rect(self.surface, self.color, (0, self.radius, self.size[0], self.size[1]-self.radius*2))
-            pygame.draw.rect(self.surface, self.color, (self.radius, 0, self.size[0]-self.radius*2, self.size[1]))
+                pygame.draw.circle(self.objectSurface, self.color, corners[quadrant], self.radius)
+            pygame.draw.rect(self.objectSurface, self.color, (0, self.radius, self.size[0], self.size[1] - self.radius * 2))
+            pygame.draw.rect(self.objectSurface, self.color, (self.radius, 0, self.size[0] - self.radius * 2, self.size[1]))
         else:
-            pygame.draw.rect(self.surface, self.color, (self.radius, 0, self.size[0]-self.radius*2, self.size[1]))
+            pygame.draw.rect(self.objectSurface, self.color, (self.radius, 0, self.size[0] - self.radius * 2, self.size[1]))
             
     def draw(self):
-        return self.surface
+        return self.objectSurface
     
     
 class TextBox(Box):
@@ -57,7 +57,7 @@ class TextBox(Box):
             
         Box.__init__(self, size, color, radius)
         
-        self.surface.blit(textSurface, (margin+radius, margin+radius))
+        self.objectSurface.blit(textSurface, (margin + radius, margin + radius))
             
     def draw(self):
-        return self.surface
+        return self.objectSurface
