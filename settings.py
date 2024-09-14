@@ -32,7 +32,6 @@ class Settings():
     android = False
 
     debug = True
-    blinkSlideBackground = True
 
     def __init__(self):
         print("Settings loaded")

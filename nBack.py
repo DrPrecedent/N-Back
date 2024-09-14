@@ -71,7 +71,6 @@ class NBack:
                 sys.exit()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                #self.game.triggered = True
                 self.game.trigger()
 
             elif event.type == KEYDOWN:
@@ -84,6 +83,7 @@ class NBack:
                 elif not self.settings.standalone:
                     if event.key == K_ESCAPE:
                         self.menu.paused = True
+
                         if self.game.started:
                             if self.drawResults:
                                 self.drawResults = not self.drawResults
@@ -97,9 +97,11 @@ class NBack:
                             self.drawMenu = False
                             self.drawGame = True
                             self.game.start()
+
                     elif event.key == K_F1:
                         if not self.drawMenu:
                             self.game.pause()
+
                         self.drawResults = not self.drawResults
                         if self.drawResults:
                             self.results = UI.activities.Results(self.game.results)

@@ -98,17 +98,19 @@ class Game(Activity):
     cell_surface_size = (100, 100)
     cell_surface_color = (50, 50, 50)
     background_color = (255, 255, 255)
-    background_flash_color = (0, 0, 255)
+
 
     def __init__(self):
         Activity.__init__(self)
-        #self.settings = Settings.Instance()
 
         self.results = {}
         self.history = []
         self.started = False
         self.paused = False
         self.answer_checked = False
+        self.showed_slide = False
+        self.showed_answer = False
+        self.clear_board = False
         self.reset()
 
         self.positions = {i+1: (self.corner_radius + 100*(i % 3),
@@ -128,14 +130,10 @@ class Game(Activity):
     def draw(self):
         self.windowSurface.fill(self.background_color)
 
-        # Flash blue background to emphasize new slide event
-        if self.show_answer and self.settings.blinkSlideBackground:
-            self.windowSurface.fill(self.background_flash_color)
-
         board_surface_base = widgets.Box(self.board_surface_size, self.board_surface_color, self.corner_radius).draw()
         board_surface = pygame.Surface.copy(board_surface_base)
 
-        if not self.show_answer or not self.early_slide():
+        if not self.show_answer or not self.early_slide() and not self.clear_board:
             cell_surface_base = widgets.Box(self.cell_surface_size, self.cell_surface_color, self.corner_radius).draw()
             cell_surface = pygame.Surface.copy(cell_surface_base)
 
@@ -237,6 +235,7 @@ class Game(Activity):
 
         self.answer_checked = True
     def nextSlide(self):
+
         if random.random() < self.settings.repeatProbability and not self.early_slide():
             '''This needs to be remade so that any of the last (self.nBack) numbers could be the next one.'''
             position = self.history[random.randint(-(1+self.settings.nBack), -1)]
@@ -247,27 +246,38 @@ class Game(Activity):
 
         if self.settings.debug:
             print("Slide number {0} generated with value: {1}".format(len(self.history), self.history[-1]))
-            print("{0} slides remaining".format(Settings.Instance().numOfSlides - self.results["count"]))
+            print("{0} slides remaining".format(self.settings.numOfSlides - self.results["count"]))
 
-        #self.triggered = False
         self.positionX = self.positions[self.currentPosition()][0]
         self.positionY = self.positions[self.currentPosition()][1]
 
     def currentPosition(self):
         return self.history[-1]
     def showSlideSwitch(self):
-        self.show_answer = not self.show_answer
+
+        if self.showed_slide and self.showed_answer and self.show_answer:
+            self.clear_board = True
+            self.showed_slide = False
+            self.showed_answer = False
+            pygame.time.set_timer(USEREVENT + 1, int(self.settings.slideTime / 3))
+
+        else:
+            self.show_answer = not self.show_answer
+            self.clear_board = False
 
         if not self.show_answer:
+
             self.setNoAnswer()
             pygame.time.set_timer(USEREVENT+1, self.settings.slideTime)
             self.nextSlide()
             self.answer_checked = False
+            self.showed_slide = True
+
         else:
             self.checkAnswer()
             self.triggered = False
-
             pygame.time.set_timer(USEREVENT+1, int(self.settings.slideTime/3))
+            self.showed_answer = True
             if len(self.history) >= self.settings.numOfSlides:
                 # If enough slides have passed
                 self.stop()
@@ -279,7 +289,6 @@ class Results(Activity):
         Activity.__init__(self)
 
         self.windowSurface.convert_alpha()
-        #self.surface.fill((255,255,255,100))
 
         self.normalFont = pygame.font.Font("fonts/freesansbold.ttf", 20)
         self.smallFont = pygame.font.Font("fonts/freesansbold.ttf", 15)
