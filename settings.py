@@ -7,16 +7,16 @@ class Settings():
     version = "0.4.0"
 
     # The N in N-Back
-    nBack = 2
+    nBack = 3
 
     # Probability that one of the last N slides will be next
-    repeatProbability = 0.75
+    repeatProbability = 0.50
 
     # Time given to answer each slide, the correct answer is shown afterwards at a fraction of the time
     slideTime = 1000
 
     # How many slides to show during one game
-    numOfSlides = 20
+    numOfSlides = 30
 
     # Window settings
     windowSize = (600, 600)

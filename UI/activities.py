@@ -57,6 +57,8 @@ class Menu(Activity):
         self.title.blit(titleVersion, (self.title.get_width()/2-titleVersion.get_width()/2, (self.title.get_height()/2-titleVersion.get_height()/2)+40))
 
         self.controlsBox = widgets.TextBox("Controls\n  Start Game / Pause - {0}\n  Trigger N-Back - {1}".format(newgameKey, triggerKey), self.menuFont, (350,100), color=(0,0,50), textColor=(255,255,0), radius=10)
+        self.instructions = widgets.TextBox("Click when tile matches the tile {0} slides back".format(self.settings.nBack), self.smallFont, (350,40), color=(0,0,50), textColor=(255,255,255), radius=10)
+
 
         if self.settings.debug:
             print("Menu Class Created")
@@ -80,6 +82,8 @@ class Menu(Activity):
     def draw(self):
         self.windowSurface.blit(self.title, ((self.windowSurface.get_width() / 2 - self.title.get_width() / 2), (self.windowSurface.get_height() / 2 - self.title.get_height() / 2) - 100))
         self.windowSurface.blit(self.controlsBox.draw(), (25, (self.windowSize[1] - self.controlsBox.draw().get_height()) - 25))
+        self.windowSurface.blit(self.instructions.draw(),
+                                (25, (self.windowSize[1] - self.controlsBox.draw().get_height()) - 55))
         if self.paused:
             self.title.fill((0, 0, 0))
             self.result_surface.fill((0, 0, 0))
