@@ -39,7 +39,8 @@ class Menu(Activity):
         self.smallFont = pygame.font.Font("fonts/freesansbold.ttf", 15)
 
         self.results = {}
-        self.paused = False
+        #self.paused = False
+        self.prompt = "Welcome to N-Back!"
 
         if self.android:
             newgameKey = "Search"
@@ -48,7 +49,7 @@ class Menu(Activity):
             newgameKey = "Escape"
             triggerKey = "Space"
 
-        self.titleText = self.titleFont.render("Welcome to N-Back!", True, (255,255,0))
+        self.titleText = self.titleFont.render(self.prompt, True, (255,255,0))
 
         titleVersion = self.smallFont.render("Version " + self.version, True, (255,255,0))
         self.title = pygame.Surface((650, 200)).convert()
@@ -64,12 +65,17 @@ class Menu(Activity):
             print("Menu Class Created")
 
     def draw_results(self):
+        if self.settings.numOfSlides <= self.results["count"]:
+            remaining = 0
+        else:
+            remaining = self.settings.numOfSlides - self.results["count"] - 1
+
         resultsHeader = self.menuFont_UL.render("Results:", True, (255, 255, 0))
         resultsCorrect = self.smallFont.render("Correct: {0}".format(self.results["correct"]), True, (255, 255, 0))
         resultsWrong = self.smallFont.render("Wrong: {0}".format(self.results["wrong"]), True, (255, 255, 0))
         resultsAvoid = self.smallFont.render("Avoided: {0}".format(self.results["avoid"]), True, (255, 255, 0))
         resultsMiss = self.smallFont.render("Missed: {0}".format(self.results["miss"]), True, (255, 255, 0))
-        resultsRemaining = self.smallFont.render("Remaining: {0}".format(self.settings.numOfSlides - self.results["count"] - 1), True, (255, 255, 0))
+        resultsRemaining = self.smallFont.render("Remaining: {0}".format(remaining), True, (255, 255, 0))
         self.result_surface.blit(resultsHeader, (10, 10))
         self.result_surface.blit(resultsCorrect, (10, 40))
         self.result_surface.blit(resultsWrong, (10, 60))
@@ -84,11 +90,12 @@ class Menu(Activity):
         self.windowSurface.blit(self.controlsBox.draw(), (25, (self.windowSize[1] - self.controlsBox.draw().get_height()) - 25))
         self.windowSurface.blit(self.instructions.draw(),
                                 (25, (self.windowSize[1] - self.controlsBox.draw().get_height()) - 55))
-        if self.paused:
-            self.title.fill((0, 0, 0))
+        self.title.fill((0, 0, 0))
+        self.titleText = self.titleFont.render(self.prompt, True, (255, 255, 0))
+        self.title.blit(self.titleText, (self.title.get_width() / 2 - self.titleText.get_width() / 2, self.title.get_height() / 2 - self.titleText.get_height() / 2))
+
+        if self.results.items():
             self.result_surface.fill((0, 0, 0))
-            self.titleText = self.titleFont.render("Game Paused!", True, (255, 255, 0))
-            self.title.blit(self.titleText, (self.title.get_width() / 2 - self.titleText.get_width() / 2, self.title.get_height() / 2 - self.titleText.get_height() / 2))
             self.windowSurface.blit(self.draw_results(), (self.windowSurface.get_width() / 2 - self.result_surface.get_width() / 2, self.windowSurface.get_height() / 2 - self.titleText.get_height() / 2))
 
         return self.windowSurface
@@ -152,14 +159,24 @@ class Game(Activity):
         return self.windowSurface
 
     def reset(self):
+
+        self.started = False
+        self.paused = False
+        self.answer_checked = False
+        self.showed_slide = False
+        self.showed_answer = False
+        self.clear_board = False
+        self.show_answer = False
+        self.triggered = False
+        self.setNoAnswer()
         self.results = {"correct": 0, "avoid": 0, "miss": 0, "wrong": 0, "count": 0}
         self.history = []
 
     def start(self):
+        pygame.time.set_timer(USEREVENT + 2, 0)
         self.reset()
         self.started = True
         self.nextSlide()
-
         pygame.time.set_timer(USEREVENT+1, int(self.settings.slideTime))
 
     def pause(self):
@@ -178,7 +195,8 @@ class Game(Activity):
         self.save()
         print("Correct: {correct}\nWrong: {wrong}\nAvoided: {avoid}\nMissed: {miss}".format(**self.results))
         pygame.time.set_timer(USEREVENT+1, 0)
-        pygame.time.set_timer(QUIT, self.settings.slideTime)
+        self.started = False
+        pygame.time.set_timer(USEREVENT+2, int(self.settings.slideTime))
 
     def save(self):
         """Saves result to CSV"""
