@@ -118,6 +118,7 @@ class Game(Activity):
         self.history = []
         self.started = False
         self.paused = False
+        self.game_over = False
         self.answer_checked = False
         self.showed_slide = False
         self.showed_answer = False
@@ -161,6 +162,7 @@ class Game(Activity):
     def reset(self):
 
         self.started = False
+        self.game_over = False
         self.paused = False
         self.answer_checked = False
         self.showed_slide = False

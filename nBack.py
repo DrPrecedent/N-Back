@@ -77,7 +77,12 @@ class NBack:
                     pass
 
                 elif event.key == K_SPACE:
-                    self.game.trigger()
+                    if self.game.game_over:
+                        self.drawMenu = False
+                        self.drawGame = True
+                        self.game.start()
+                    else:
+                        self.game.trigger()
 
                 elif not self.settings.standalone:
                     if event.key == K_ESCAPE:
@@ -110,6 +115,7 @@ class NBack:
 
             elif event.type == USEREVENT+2:
                 self.menu.prompt = "Game Over!"
+                self.game.game_over = True
                 self.menu.results = self.game.results
                 self.drawMenu = True
                 self.drawGame = False
